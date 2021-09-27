@@ -106,13 +106,13 @@ def sparse_corr(feature_A,
 
 def torch_to_me(sten):
     sten = sten.coalesce()
-    indices = sten.indices().t().int().cpu()
+    indices = sten.indices().t().int()
     
-    return ME.SparseTensor(sten.values(), indices)
+    return ME.SparseTensor(sten.values(), indices.contiguous())
 
 def me_to_torch(sten):
-    values = sten.feats
-    indices = sten.coords.t().long().to(values.device)
+    values = sten.features
+    indices = sten.coordinates.t().long().to(values.device)
     
     sten = torch.sparse.FloatTensor(indices,values).coalesce()
     
@@ -141,16 +141,16 @@ def corr_and_add(
         ratio=False,
         reverse=True, sparse_type='raw')
     
-    scorr = ME.SparseTensor(scorr[0],scorr[1])
-    scorr2 = ME.SparseTensor(scorr2[0],scorr2[1],coords_manager=scorr.coords_man,force_creation=True)
+    scorr = ME.SparseTensor(scorr[0],scorr[1].to(scorr[0].device))
+    scorr2 = ME.SparseTensor(scorr2[0],scorr2[1].to(scorr2[0].device),coordinate_manager=scorr.coordinate_manager)
     
     scorr = ME.MinkowskiUnion()(scorr,scorr2)
     
     return scorr
 
 def transpose_me(sten):
-    return ME.SparseTensor(sten.feats.clone(),
-                           sten.coords[:,[0,3,4,1,2]].clone())
+    return ME.SparseTensor(sten.features.clone(),
+                           sten.coordinates[:,[0,3,4,1,2]].clone())
 
 def transpose_torch(sten):
     sten = sten.coalesce()
@@ -238,8 +238,8 @@ def get_matches(out, reverse=True, fsize=40, scale='centered'):
         c=[1,2]
         fh, fw = fs1, fs2
 
-    coords = out.coords[:,c].cuda()
-    feats = out.feats
+    coords = out.coordinates[:,c].cuda()
+    feats = out.features
     sorted_idx = torch.argsort(-feats,dim=0).view(-1)
     coords = coords[sorted_idx]
     
@@ -248,7 +248,7 @@ def get_matches(out, reverse=True, fsize=40, scale='centered'):
     matches_idx = sorted_idx[matches_idx]
     
     matches_scores = feats[matches_idx].t()
-    matches = out.coords.to(out.device)[matches_idx,1:]
+    matches = out.coordinates.to(out.device)[matches_idx,1:]
             
     if scale=='centered':
         yA = normalize_axis(matches[:,0]+1,fs1).unsqueeze(0).to(out.device)

@@ -6,7 +6,7 @@
 This is the implementation of the paper "Efficient Neighbourhood Consensus Networks via Submanifold Sparse Convolutions" by Ignacio Rocco, Relja Arandjelović and Josef Sivic, accepted to ECCV 2020 [[arXiv](https://arxiv.org/abs/2004.10566)].
 
 ## Installation
-For installation instructions, please see [INSTALL.md](INSTALL.md).
+`pytorch>=1.7.1, faiss-gpu>=1.7.0,  MinkowskiEngine>=0.5.4`
 
 ## Quickstart
 For a demo of the method, see the Jupyter notebook [`demo/demo.ipynb`](demo/demo.ipynb).

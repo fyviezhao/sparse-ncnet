@@ -84,10 +84,10 @@ class SparseNeighConsensus(torch.nn.Module):
             ch_out = channels[i]
             k_size = kernel_sizes[i]
             if ch_out==1 or bn==False:
-                nn_modules.append(ME.MinkowskiConvolution(ch_in,ch_out,kernel_size=k_size,has_bias=True,dimension=4))
+                nn_modules.append(ME.MinkowskiConvolution(ch_in,ch_out,kernel_size=k_size,bias=True,dimension=4))
             elif bn==True:
                 nn_modules.append(torch.nn.Sequential(
-                    ME.MinkowskiConvolution(ch_in,ch_out,kernel_size=k_size,has_bias=True,dimension=4),
+                    ME.MinkowskiConvolution(ch_in,ch_out,kernel_size=k_size,bias=True,dimension=4),
                     ME.MinkowskiBatchNorm(ch_out)))
             nn_modules.append(ME.MinkowskiReLU(inplace=True))
         self.conv = nn.Sequential(*nn_modules) 
